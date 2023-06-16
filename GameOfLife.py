@@ -1,9 +1,9 @@
 import pygame 
 import numpy as np
-
+import random
 pygame.init()
 
-width,height = 300,300
+width,height = 1000,1000
 screen = pygame.display.set_mode((width,height))
 
 # Set the number of cells in each row and column
@@ -12,13 +12,27 @@ n_cells_x, n_cells_y = width // 20, height// 20
 cell_width = width // n_cells_x
 cell_height = height // n_cells_y
 
-grid = [[0] * n_cells_x for _ in range(n_cells_y)]
+def generateNum():
+    if random.random() < 0.1:
+        return 1
+    else:
+        return 0
+grid = [[generateNum() for _ in range(n_cells_x)] for _ in range(n_cells_y)]
+# grid = [[0]*n_cells_x for _ in range(n_cells_y)]
+
+# # Probability of getting 1
+# probability_of_one = 0.1
+
+# # Create a grid of random numbers
+# grid = np.random.choice([0, 1], size=(n_cells_y, n_cells_x), p=[1 - probability_of_one, probability_of_one])
+
+
 
 # Define the colors
 bg_color = pygame.Color('gray20')
 alive_color = pygame.Color('gray86')
 
-# Function to update the grid based on the Game of Life rules
+# Game of Life ruleset
 def update_grid():
     def countNeighbours(r,c):
         n = 0
@@ -68,15 +82,19 @@ def draw_grid():
 
     # Draw the grid lines
     for x in range(0, width, cell_width):
-        pygame.draw.line(screen, pygame.Color('green'), (x, 0), (x, height))
+        pygame.draw.line(screen, pygame.Color('gray'), (x, 0), (x, height))
     for y in range(0, height, cell_height):
-        pygame.draw.line(screen, pygame.Color('red'), (0, y), (width, y))
+        pygame.draw.line(screen, pygame.Color('gray'), (0, y), (width, y))
     
     # Update the display
     pygame.display.flip()
 
 running = True
 paused = True
+
+clock = pygame.time.Clock()
+iteration_delay = 200  # Delay in milliseconds (increase for slower iterations)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -84,7 +102,10 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 paused = not paused
-
+            if event.key == pygame.K_s:
+                paused = not paused
+                update_grid()
+                paused = not paused
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left mouse button
@@ -100,6 +121,7 @@ while running:
         update_grid()
     
     draw_grid()
+    clock.tick(1000 // iteration_delay) 
 
 
 pygame.quit()
